@@ -1,0 +1,11 @@
+{
+    "name": "stashee/starrphp-core",
+    "autoload": {
+        "psr-4": {
+            "StarrPHP\\Core\\": "src/"
+        }
+    },
+    "require": {
+        "php": ">=8.1"
+    }
+}
