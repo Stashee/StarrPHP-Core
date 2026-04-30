@@ -52,27 +52,53 @@ class Router
 
             $key = strtoupper($route->method) . ' ' . $fullPath;
 
-            $this->routes[$key] = [$controllerClass, $reflectionMethod->getName()];
+            $this->routes[$key] = [$controllerClass, $reflectionMethod->getName(), $fullPath];
         }
     }
 
     public function resolve(string $uri, string $httpMethod): Response
     {
-        $key = strtoupper($httpMethod) . ' ' . $uri;
-        $target = $this->routes[$key] ?? null;
+        $method = strtoupper($httpMethod);
+        [$target, $params] = $this->match($uri, $method);
 
         if ($target === null) {
             return Response::json(['message' => 'Not Found'], HttpStatus::NotFound);
         }
 
         try {
-            [$controllerClass, $method] = $target;
+            [$controllerClass, $action] = $target;
             $controller = $this->container->make($controllerClass);
-            return $controller->$method();
+            return $controller->$action(...array_values($params));
         } catch (HttpException $e) {
             return Response::json(['message' => $e->getMessage()], $e->status);
         } catch (\Throwable $e) {
             return Response::json(['message' => 'Internal Server Error'], HttpStatus::InternalServerError);
         }
+    }
+
+    private function match(string $uri, string $method): array
+    {
+        $exactKey = $method . ' ' . $uri;
+        if (isset($this->routes[$exactKey])) {
+            return [$this->routes[$exactKey], []];
+        }
+
+        foreach ($this->routes as $key => [$controllerClass, $action, $path]) {
+            if (!str_starts_with($key, $method . ' ')) {
+                continue;
+            }
+
+            $pattern = preg_replace('/\{[^}]+\}/', '([^/]+)', $path);
+            $pattern = '#^' . $pattern . '$#';
+
+            preg_match_all('/\{([^}]+)\}/', $path, $paramNames);
+            if (preg_match($pattern, $uri, $matches)) {
+                array_shift($matches);
+                $params = array_combine($paramNames[1], $matches);
+                return [[$controllerClass, $action], $params];
+            }
+        }
+
+        return [null, []];
     }
 }
