@@ -5,6 +5,7 @@ namespace StarrPHP\Core;
 use ReflectionClass;
 use ReflectionException;
 use StarrPHP\Core\Attribute\Route;
+use StarrPHP\Core\Enum\HttpStatus;
 
 class Router
 {
@@ -60,7 +61,7 @@ class Router
         $target = $this->routes[$key] ?? null;
 
         if ($target === null) {
-            return Response::json(['message' => 'Not Found'], 404);
+            return Response::json(['message' => 'Not Found'], HttpStatus::NotFound);
         }
 
         [$controllerClass, $method] = $target;
