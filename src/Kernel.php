@@ -7,10 +7,17 @@ use ReflectionException;
 class Kernel
 {
     private Router $router;
+    private Container $container;
 
     public function __construct()
     {
-        $this->router = new Router();
+        $this->container = new Container();
+        $this->router = new Router($this->container);
+    }
+
+    public function getContainer(): Container
+    {
+        return $this->container;
     }
 
     public function scanControllers(string $directory, ?string $cacheFile = null, ?string $baseDir = null): void

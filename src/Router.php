@@ -10,6 +10,8 @@ class Router
 {
     protected array $routes = [];
 
+    public function __construct(private Container $container) {}
+
     public function getRoutes(): array
     {
         return $this->routes;
@@ -62,7 +64,7 @@ class Router
         }
 
         [$controllerClass, $method] = $target;
-        $controller = new $controllerClass();
+        $controller = $this->container->make($controllerClass);
         return $controller->$method();
     }
 }
