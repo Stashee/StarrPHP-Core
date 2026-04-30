@@ -11,9 +11,4 @@ abstract class AbstractController
     {
         return Response::json($data, $status);
     }
-
-    protected function notFound(string $message = 'Not Found'): Response
-    {
-        return Response::json(['message' => $message], HttpStatus::NotFound);
-    }
 }

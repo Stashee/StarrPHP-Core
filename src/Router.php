@@ -6,6 +6,7 @@ use ReflectionClass;
 use ReflectionException;
 use StarrPHP\Core\Attribute\Route;
 use StarrPHP\Core\Enum\HttpStatus;
+use StarrPHP\Core\Exception\HttpException;
 
 class Router
 {
@@ -64,8 +65,14 @@ class Router
             return Response::json(['message' => 'Not Found'], HttpStatus::NotFound);
         }
 
-        [$controllerClass, $method] = $target;
-        $controller = $this->container->make($controllerClass);
-        return $controller->$method();
+        try {
+            [$controllerClass, $method] = $target;
+            $controller = $this->container->make($controllerClass);
+            return $controller->$method();
+        } catch (HttpException $e) {
+            return Response::json(['message' => $e->getMessage()], $e->status);
+        } catch (\Throwable $e) {
+            return Response::json(['message' => 'Internal Server Error'], HttpStatus::InternalServerError);
+        }
     }
 }
