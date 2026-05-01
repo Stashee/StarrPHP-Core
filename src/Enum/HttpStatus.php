@@ -11,5 +11,6 @@ enum HttpStatus: int
     case Unauthorized = 401;
     case Forbidden = 403;
     case NotFound = 404;
+    case UnprocessableEntity = 422;
     case InternalServerError = 500;
 }

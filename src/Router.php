@@ -7,6 +7,7 @@ use ReflectionException;
 use StarrPHP\Core\Attribute\Route;
 use StarrPHP\Core\Enum\HttpStatus;
 use StarrPHP\Core\Exception\HttpException;
+use StarrPHP\Core\Exception\ValidationException;
 
 class Router
 {
@@ -69,6 +70,8 @@ class Router
             [$controllerClass, $action] = $target;
             $controller = $this->container->make($controllerClass);
             return $controller->$action(...array_values($params));
+        } catch (ValidationException $e) {
+            return Response::json(['message' => $e->getMessage(), 'errors' => $e->getErrors()], $e->status);
         } catch (HttpException $e) {
             return Response::json(['message' => $e->getMessage()], $e->status);
         } catch (\Throwable $e) {

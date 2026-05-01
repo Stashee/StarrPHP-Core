@@ -58,8 +58,11 @@ class Request
         return $this->query[$key] ?? $default;
     }
 
-    public function body(string $key, mixed $default = null): mixed
+    public function body(?string $key = null, mixed $default = null): mixed
     {
+        if ($key === null) {
+            return $this->body;
+        }
         return $this->body[$key] ?? $default;
     }
 
