@@ -62,6 +62,7 @@ class Kernel
 
     public function handle(Request $request): void
     {
+        $this->container->bindInstance(Request::class, $request);
         $this->router->resolve($request->uri, $request->method)->send();
     }
 }

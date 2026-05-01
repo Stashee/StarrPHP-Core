@@ -9,10 +9,16 @@ use RuntimeException;
 class Container
 {
     private array $bindings = [];
+    private array $instances = [];
 
     public function bind(string $abstract, string $concrete): void
     {
         $this->bindings[$abstract] = $concrete;
+    }
+
+    public function bindInstance(string $abstract, object $instance): void
+    {
+        $this->instances[$abstract] = $instance;
     }
 
     /**
@@ -20,6 +26,10 @@ class Container
      */
     public function make(string $class): object
     {
+        if (isset($this->instances[$class])) {
+            return $this->instances[$class];
+        }
+
         $class = $this->bindings[$class] ?? $class;
 
         $reflection = new ReflectionClass($class);

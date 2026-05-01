@@ -33,11 +33,22 @@ class Request
             }
         }
 
+        $contentType = $_SERVER['CONTENT_TYPE'] ?? '';
+        $body = $_POST;
+
+        if (str_contains($contentType, 'application/json')) {
+            $raw = file_get_contents('php://input');
+            $decoded = json_decode($raw, true);
+            if (is_array($decoded)) {
+                $body = $decoded;
+            }
+        }
+
         return new self(
             $_SERVER['REQUEST_METHOD'] ?? 'GET',
             parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH),
             $_GET,
-            $_POST,
+            $body,
             $headers
         );
     }
